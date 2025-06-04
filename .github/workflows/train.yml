@@ -1,13 +1,12 @@
-name: Run Trading Bot
+name: Train Models
 
 on:
+  workflow_dispatch:  # Manual trigger
   schedule:
-    # Every 15 minutes on weekdays
-    - cron: '*/15 * * * 1-5'
-  workflow_dispatch:
+    - cron: '0 6 * * 1-5'  # Runs every weekday at 6:00 AM UTC
 
 jobs:
-  run-bot:
+  train-models:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,8 +22,12 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Train models
+      - name: Run training script
         run: python train_model.py
 
-      - name: Run trading bot
-        run: python bot.py
+      - name: Upload trained models (optional)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-models
+          path: models/
