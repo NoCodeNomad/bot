@@ -1,16 +1,16 @@
-name: Train Models
+name: Train and Run Bot
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '0 6 * * 1-5'  # Runs every weekday at 6:00 AM UTC
+    - cron: '*/15 13-20 * * 1-5'  # Every 15 mins during NYSE hours (9am–4pm EST)
 
 jobs:
-  train-models:
+  train-and-run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -22,12 +22,8 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run training script
+      - name: Train models
         run: python train_model.py
 
-      - name: Upload trained models (optional)
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trained-models
-          path: models/
+      - name: Run bot
+        run: python bot.py
