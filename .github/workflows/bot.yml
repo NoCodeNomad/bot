@@ -1,7 +1,42 @@
+name: Test HTTPS Connectivity to Financial APIs
+
+on:
+  workflow_dispatch:
+
 jobs:
-  test-connectivity:
+  test-api-connections:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Test HTTPS connection to OpenAI API
+      - name: Test Alpha Vantage API
+        env:
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
         run: |
-          curl -v https://api.openai.com/v1/models || echo "Connection failed"
+          if [ -z "$ALPHAVANTAGE_API_KEY" ]; then
+            echo "ALPHAVANTAGE_API_KEY secret is missing"
+            exit 1
+          fi
+          echo "Testing Alpha Vantage API..."
+          curl -s "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=$ALPHAVANTAGE_API_KEY" | head -n 20
+
+      - name: Test NewsAPI
+        env:
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+        run: |
+          if [ -z "$NEWSAPI_KEY" ]; then
+            echo "NEWSAPI_KEY secret is missing"
+            exit 1
+          fi
+          echo "Testing NewsAPI..."
+          curl -s "https://newsapi.org/v2/top-headlines?country=us&apiKey=$NEWSAPI_KEY" | head -n 20
+
+      - name: Test Trading Economics API with API Key
+        env:
+          TRADINGECONOMICS_API_KEY: ${{ secrets.TRADINGECONOMICS_API_KEY }}
+        run: |
+          if [ -z "$TRADINGECONOMICS_API_KEY" ]; then
+            echo "TRADINGECONOMICS_API_KEY secret is missing"
+            exit 1
+          fi
+          echo "Testing Trading Economics API with API Key..."
+          curl -s "https://api.tradingeconomics.com/markets?client=$TRADINGECONOMICS_API_KEY" | head -n 20
