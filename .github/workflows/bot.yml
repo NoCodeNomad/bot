@@ -1,42 +1,49 @@
-name: Test HTTPS Connectivity to Financial APIs
+name: Test Financial API Keys
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  test-api-connections:
+  test-keys:
     runs-on: ubuntu-latest
+    env:
+      ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+      FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+      NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+      POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+      TRADINGECONOMICS_KEY: ${{ secrets.TRADINGECONOMICS_KEY }}
+      TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
 
     steps:
-      - name: Test Alpha Vantage API
-        env:
-          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Alpha Vantage
         run: |
-          if [ -z "$ALPHAVANTAGE_API_KEY" ]; then
-            echo "ALPHAVANTAGE_API_KEY secret is missing"
+          if [ -z "$ALPHAVANTAGE_KEY" ]; then
+            echo "ALPHAVANTAGE_KEY is missing"
             exit 1
           fi
-          echo "Testing Alpha Vantage API..."
-          curl -s "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=$ALPHAVANTAGE_API_KEY" | head -n 20
+          curl "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=$ALPHAVANTAGE_KEY"
+
+      - name: Test Finnhub
+        run: |
+          curl "https://finnhub.io/api/v1/quote?symbol=AAPL&token=$FINNHUB_API_KEY"
 
       - name: Test NewsAPI
-        env:
-          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
         run: |
-          if [ -z "$NEWSAPI_KEY" ]; then
-            echo "NEWSAPI_KEY secret is missing"
-            exit 1
-          fi
-          echo "Testing NewsAPI..."
-          curl -s "https://newsapi.org/v2/top-headlines?country=us&apiKey=$NEWSAPI_KEY" | head -n 20
+          curl "https://newsapi.org/v2/top-headlines?country=us&apiKey=$NEWSAPI_KEY"
 
-      - name: Test Trading Economics API with API Key
-        env:
-          TRADINGECONOMICS_API_KEY: ${{ secrets.TRADINGECONOMICS_API_KEY }}
+      - name: Test Polygon
         run: |
-          if [ -z "$TRADINGECONOMICS_API_KEY" ]; then
-            echo "TRADINGECONOMICS_API_KEY secret is missing"
-            exit 1
-          fi
-          echo "Testing Trading Economics API with API Key..."
-          curl -s "https://api.tradingeconomics.com/markets?client=$TRADINGECONOMICS_API_KEY" | head -n 20
+          curl "https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=true&apiKey=$POLYGON_API_KEY"
+
+      - name: Test Trading Economics
+        run: |
+          curl "https://api.tradingeconomics.com/markets/symbol/AAPL:US?c=$TRADINGECONOMICS_KEY"
+
+      - name: Test Twelve Data
+        run: |
+          curl "https://api.twelvedata.com/time_series?symbol=AAPL&interval=1min&apikey=$TWELVEDATA_API_KEY"
