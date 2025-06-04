@@ -2,7 +2,7 @@ name: Run Trading Bot
 
 on:
   schedule:
-    # Every 15 minutes (adjust to market hours if needed)
+    # Every 15 minutes on weekdays
     - cron: '*/15 * * * 1-5'
   workflow_dispatch:
 
