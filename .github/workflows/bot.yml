@@ -28,3 +28,10 @@ jobs:
 
       - name: Run trading bot
         run: python bot.py
+jobs:
+  test-connectivity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test HTTPS connection to OpenAI API
+        run: |
+          curl -v https://api.openai.com/v1/models || echo "Connection failed"
