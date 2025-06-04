@@ -3,14 +3,14 @@ name: Train and Run Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 13-20 * * 1-5'  # Every 15 mins during NYSE hours (9am–4pm EST)
+    - cron: '*/15 13-20 * * 1-5'  # Every 15 minutes from 9am–4pm EST, Mon–Fri
 
 jobs:
   train-and-run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -23,7 +23,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Train models
-        run: python train_model.py
+        run: |
+          python train_model.py
 
       - name: Run bot
-        run: python bot.py
+        run: |
+          python bot.py
