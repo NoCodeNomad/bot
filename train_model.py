@@ -9,16 +9,17 @@ import os
 
 def get_features(df):
     df = df.copy()
-    df['SMA_10'] = SMAIndicator(df['Close'], window=10).sma_indicator()
-    df['SMA_50'] = SMAIndicator(df['Close'], window=50).sma_indicator()
-    df['Return'] = df['Close'].pct_change()
+    close = df['Close'].squeeze()  # Make sure it's a 1D Series
+    df['SMA_10'] = SMAIndicator(close, window=10).sma_indicator()
+    df['SMA_50'] = SMAIndicator(close, window=50).sma_indicator()
+    df['Return'] = close.pct_change()
     df['Target'] = (df['Return'].shift(-1) > 0).astype(int)
     df.dropna(inplace=True)
     return df
 
 def train_model(ticker):
     print(f"Training model for {ticker}...")
-    df = yf.download(ticker, period="2y", interval="1d", progress=False)
+    df = yf.download(ticker, period="2y", interval="1d", auto_adjust=True, progress=False)
     if df.empty:
         print(f"No data for {ticker}, skipping.")
         return
