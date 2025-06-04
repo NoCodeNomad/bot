@@ -1,0 +1,30 @@
+name: Run Trading Bot
+
+on:
+  schedule:
+    # Every 15 minutes (adjust to market hours if needed)
+    - cron: '*/15 * * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Train models
+        run: python train_model.py
+
+      - name: Run trading bot
+        run: python bot.py
